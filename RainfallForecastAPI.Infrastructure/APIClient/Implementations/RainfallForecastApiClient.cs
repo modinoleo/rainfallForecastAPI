@@ -26,14 +26,16 @@ namespace RainfallForecastAPI.Infrastructure.APIClient.Implementations
         {
 
             var response = await _httpClient.GetAsync($"/flood-monitoring/id/stations/{stationId}/readings?latest");
+            var content = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
             {
-                var jsonString = await response.Content.ReadAsStringAsync();
-                var resultObject = JsonSerializer.Deserialize<RainfallReadingItems>(jsonString);
-
+                var resultObject = JsonSerializer.Deserialize<RainfallReadingItems>(content);
                 return resultObject ?? new RainfallReadingItems();
             }
-            return new RainfallReadingItems();
+            else
+            {
+                throw new HttpRequestException(content,null,response.StatusCode);
+            }
         }
     }
 }
